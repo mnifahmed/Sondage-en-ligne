@@ -1,0 +1,57 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Ajouter une question{% endblock %}
+
+{% block content %}
+<!-- Begin Page Content -->
+                <div class="container-fluid">
+                    <!-- Content Row -->
+
+                    <div class="card mb-4">
+                                <div class="card-header py-3">
+                                    <h5 class="m-0 font-weight-bold text-primary">Ajouter une question</h5>
+                                </div>
+                                <div class="card-body">
+                                <form action="{{ path('app_question_add') }}" method="post" class="form-group">
+                                {% for message in app.flashes('success') %}
+                                 <div class="alert alert-success">
+                                  {{ message }}
+                                  </div>
+                                {% endfor %}
+                                {% for message in app.flashes('error') %}
+                                 <div class="alert alert-danger">
+                                  {{ message }}
+                                  </div>
+                                {% endfor %}
+                             <div class="form-group">
+                           <div>
+                        <select id="poll" name="poll" class="form-control form-control-user" onchange="handlePollChange()">
+                        <option value="">-- Choisir un sondage --</option>
+                        {% for poll in polls %}
+                            <option value="{{ poll.id }}">{{ poll.title }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div id="title-container">
+                <div class="form-group">
+                    <div>
+                        <input type="text" name="title" id="title" placeholder="Entrer la question" class="form-control" hidden required>
+                    </div>
+                </div>
+                <div class="form-group">
+                <div>
+                        <input type="number" min="1" inputmode="numeric" name="ordre" id="ordre" placeholder="Entrer l'ordre d'apparence" class="form-control" hidden required>
+                    </div>
+            </div>
+            </div>
+            <button type="submit" id="valider" class="btn btn-primary" hidden>Ajouter</button>
+        </form>
+                                </div>
+                            </div>
+
+                <!-- /.container-fluid -->
+
+            </div>
+            <!-- End of Main Content -->
+{% endblock %}

@@ -1,0 +1,62 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier une question{% endblock %}
+
+{% block content %}
+    <!-- Begin Page Content -->
+    <div class="container-fluid">
+        <!-- Content Row -->
+        <div class="card mb-4">
+            <div class="card-header py-3">
+                <h5 class="m-0 font-weight-bold text-primary">Modifier une question</h5>
+            </div>
+            <div class="card-body">
+                <form action="{{ path('app_question_modify') }}" method="post" class="form-group">
+                    {% for message in app.flashes('success') %}
+                        <div class="alert alert-success">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                    {% for message in app.flashes('error') %}
+                        <div class="alert alert-danger">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                    <div class="form-group">
+                        <div>
+                            <select id="poll" name="poll" class="form-control form-control-user">
+                                <option value="">-- Choisir un sondage --</option>
+                                {% for poll in polls %}
+                                    <option value="{{ poll.id }}">{{ poll.title }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group" id="question-container" style="display: none;">
+                        <div>
+                            <select id="question" name="question" class="form-control form-control-user">
+                                <option value="">-- Choisir une question --</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div id="title-container" style="display: none;">
+                        <div class="form-group">
+                            <div>
+                                <input type="text" name="title" id="title" placeholder="Entrer le nouveau titre"
+                                       class="form-control" oninput="checkFields()">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div>
+                                <input type="number" min="1" inputmode="numeric" name="ordre" id="ordre"
+                                       placeholder="Entrer le nouveau ordre d'apparence" class="form-control" oninput="checkFields()">
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" id="modifier" class="btn btn-primary" style="display: none;" disabled>Modifier</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <!-- End of Main Content -->
+{% endblock %}

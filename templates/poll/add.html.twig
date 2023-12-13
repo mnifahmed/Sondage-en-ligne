@@ -1,0 +1,38 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Créer un sondage{% endblock %}
+
+{% block content %}
+<!-- Begin Page Content -->
+                <div class="container-fluid">
+                    <!-- Content Row -->
+
+                    <div class="card mb-4">
+                                <div class="card-header py-3">
+                                    <h5 class="m-0 font-weight-bold text-primary">Créer un sondage</h5>
+                                </div>
+                                <div class="card-body">
+                                {{ form_start(form, {'attr': {'class': 'user'}}) }}
+                                {% for message in app.flashes('success') %}
+                                 <div class="alert alert-success">
+                                  {{ message }}
+                                  </div>
+                                {% endfor %}
+                                {% for message in app.flashes('error') %}
+                                 <div class="alert alert-danger">
+                                  {{ message }}
+                                  </div>
+                                {% endfor %}
+                                <div class="form-group">
+                                    {{ form_widget(form.title, { 'attr': {'class': 'form-control', 'placeholder': 'Titre'} }) }}
+                                </div>
+                           <input type="submit" class="btn btn-primary" value="Créer">
+                            {{ form_end(form) }}
+                                </div>
+                            </div>
+
+                <!-- /.container-fluid -->
+
+            </div>
+            <!-- End of Main Content -->
+{% endblock %}

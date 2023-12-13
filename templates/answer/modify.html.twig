@@ -1,0 +1,189 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Modifier une réponse{% endblock %}
+
+{% block content %}
+<!-- Begin Page Content -->
+    <div class="container-fluid">
+        <!-- Content Row -->
+        <div class="card mb-4">
+            <div class="card-header py-3">
+                <h5 class="m-0 font-weight-bold text-primary">Modifier une réponse</h5>
+            </div>
+            <div class="card-body">
+                <form action="{{ path('app_answer_modify') }}" method="post" class="form-group">
+                    {% for message in app.flashes('success') %}
+                        <div class="alert alert-success">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                    {% for message in app.flashes('error') %}
+                        <div class="alert alert-danger">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                    <div class="form-group">
+                        <div>
+                            <select id="poll" name="poll" class="form-control form-control-user">
+                                <option value="">-- Choisir un sondage --</option>
+                                {% for poll in polls %}
+                                    <option value="{{ poll.id }}">{{ poll.title }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group" id="question-container" style="display: none;">
+                        <div>
+                            <select id="question" name="question" class="form-control form-control-user">
+                                <option value="">-- Choisir une question --</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group" id="answer-container" style="display: none;">
+                        <div class="form-group">
+                            <div>
+                                <select id="answer" name="answer" class="form-control form-control-user">
+                                <option value="">-- Choisir une réponse --</option>
+                            </select>
+                            </div>
+                            </div>
+                            <div class="form-group">
+                            <div>
+                            <input type="text" name="new_answer" id="new_answer" placeholder="Entrer la nouvelle réponse" class="form-control" required>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" id="valider" class="btn btn-primary" style="display: none;">Modifier</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script>
+    const pollSelectElement = document.getElementById('poll');
+    const questionSelectElement = document.getElementById('question');
+    const answerSelectElement = document.getElementById('answer');
+    const newAnswerInput = document.getElementById('new_answer');
+    const questionContainer = document.getElementById('question-container');
+    const answerContainer = document.getElementById('answer-container');
+    const submitButton = document.getElementById('valider');
+
+    // Store the placeholder options
+    const pollPlaceholderOption = document.createElement('option');
+    pollPlaceholderOption.value = '';
+    pollPlaceholderOption.textContent = '-- Choisir un sondage --';
+
+    const questionPlaceholderOption = document.createElement('option');
+    questionPlaceholderOption.value = '';
+    questionPlaceholderOption.textContent = '-- Choisir une question --';
+
+    const answerPlaceholderOption = document.createElement('option');
+    answerPlaceholderOption.value = '';
+    answerPlaceholderOption.textContent = '-- Choisir une réponse --';
+
+    // Clear answer field and hide related elements on change
+    const clearAnswerField = function () {
+        newAnswerInput.value = '';
+        newAnswerInput.style.display = 'none';
+        submitButton.style.display = 'none';
+    };
+
+    // Clear question and answer fields on change
+    const clearQuestionAndAnswerFields = function () {
+        clearAnswerField();
+
+        answerSelectElement.innerHTML = '';
+        answerSelectElement.appendChild(answerPlaceholderOption);
+        answerContainer.style.display = 'none';
+        submitButton.style.display = 'none';
+    };
+
+    pollSelectElement.addEventListener('change', function () {
+    const pollId = this.value;
+
+    clearQuestionAndAnswerFields();
+
+    if (pollId) {
+        fetch(`/poll/${pollId}/questions`)
+            .then(response => response.json())
+            .then(questions => {
+                // Append questions only if any exist
+                questionSelectElement.innerHTML = '';
+                questionSelectElement.appendChild(questionPlaceholderOption);
+
+                if (questions.length > 0) {
+                    questions.forEach(question => {
+                        const option = document.createElement('option');
+                        option.value = question.id;
+                        option.textContent = question.title;
+                        questionSelectElement.appendChild(option);
+                    });
+                }
+
+                questionContainer.style.display = 'block';
+            })
+            .catch(error => console.error('Error fetching questions:', error));
+    } else {
+        // If no poll is selected, hide the question selector
+        questionContainer.style.display = 'none';
+    }
+});
+
+    questionSelectElement.addEventListener('change', function () {
+    const questionId = this.value;
+
+    clearAnswerField();
+    answerContainer.style.display = questionId ? 'block' : 'none';
+    submitButton.style.display = 'none';
+
+    if (questionId) {
+        fetch(`/question/${questionId}/answers`)
+            .then(response => response.json())
+            .then(answers => {
+                // Append answers only if any exist
+                answerSelectElement.innerHTML = '';
+                answerSelectElement.appendChild(answerPlaceholderOption);
+
+                if (answers.length > 0) {
+                    answers.forEach(answer => {
+                        const option = document.createElement('option');
+                        option.value = answer.id;
+                        option.textContent = answer.wording;
+                        answerSelectElement.appendChild(option);
+                    });
+                }
+
+                answerContainer.style.display = 'block';
+            })
+            .catch(error => console.error('Error fetching answers:', error));
+    } else {
+        // If no question is selected, hide the answers selector
+        answerContainer.style.display = 'none';
+    }
+});
+
+    let previousAnswerId = null;
+
+// Show new answer input field when an answer is selected
+answerSelectElement.addEventListener('change', function () {
+    const currentAnswerId = this.value;
+
+    // Check if the current answer is different from the previous one
+    if (currentAnswerId !== previousAnswerId) {
+        clearAnswerField(); // Clear the input field if the answer has changed
+    }
+
+    if (currentAnswerId) {
+        newAnswerInput.style.display = 'block';
+        submitButton.style.display = 'block';
+    } else {
+        newAnswerInput.style.display = 'none';
+        submitButton.style.display = 'none';
+    }
+
+    // Update the previousAnswerId for the next change event
+    previousAnswerId = currentAnswerId;
+});
+</script>
+
+    <!-- End of Main Content -->
+{% endblock %}

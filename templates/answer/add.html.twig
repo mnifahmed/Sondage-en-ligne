@@ -1,0 +1,120 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Ajouter une réponse{% endblock %}
+
+{% block content %}
+<!-- Begin Page Content -->
+    <div class="container-fluid">
+        <!-- Content Row -->
+        <div class="card mb-4">
+            <div class="card-header py-3">
+                <h5 class="m-0 font-weight-bold text-primary">Ajouter une réponse</h5>
+            </div>
+            <div class="card-body">
+                <form action="{{ path('app_answer_add') }}" method="post" class="form-group">
+                    {% for message in app.flashes('success') %}
+                        <div class="alert alert-success">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                    {% for message in app.flashes('error') %}
+                        <div class="alert alert-danger">
+                            {{ message }}
+                        </div>
+                    {% endfor %}
+                    <div class="form-group">
+                        <div>
+                            <select id="poll" name="poll" class="form-control form-control-user">
+                                <option value="">-- Choisir un sondage --</option>
+                                {% for poll in polls %}
+                                    <option value="{{ poll.id }}">{{ poll.title }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group" id="question-container" style="display: none;">
+                        <div>
+                            <select id="question" name="question" class="form-control form-control-user">
+                                <option value="">-- Choisir une question --</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group" id="answer-container" style="display: none;">
+                        <div class="form-group">
+                            <div>
+                                <input type="text" name="answer" id="answer" placeholder="Entrer la réponse"
+                                   class="form-control" required>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" id="valider" class="btn btn-primary" style="display: none;">Ajouter</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    <script>
+        const pollSelectElement = document.getElementById('poll');
+const questionSelectElement = document.getElementById('question');
+const answerInput = document.getElementById('answer');
+const questionContainer = document.getElementById('question-container');
+const answerContainer = document.getElementById('answer-container');
+const submitButton = document.getElementById('valider');
+
+// Store the placeholder options
+const pollPlaceholderOption = document.createElement('option');
+pollPlaceholderOption.value = '';
+pollPlaceholderOption.textContent = '-- Choisir un sondage --';
+
+const questionPlaceholderOption = document.createElement('option');
+questionPlaceholderOption.value = '';
+questionPlaceholderOption.textContent = '-- Choisir une question --';
+
+pollSelectElement.addEventListener('change', function () {
+  const pollId = this.value;
+
+  // Clear answer field and hide related elements
+  answerInput.value = '';
+  answerContainer.style.display = 'none';
+  submitButton.style.display = 'none';
+
+  questionSelectElement.innerHTML = ''; // Clear previous options
+  questionSelectElement.appendChild(questionPlaceholderOption);
+  questionContainer.style.display = pollId ? 'block' : 'none';
+
+  if (pollId) {
+    fetch(`/poll/${pollId}/questions`)
+      .then(response => response.json())
+      .then(questions => {
+        // Append questions only if any exist
+        if (questions.length > 0) {
+          questions.forEach(question => {
+            const option = document.createElement('option');
+            option.value = question.id;
+            option.textContent = question.title;
+            questionSelectElement.appendChild(option);
+          });
+        } else {
+          questionSelectElement.appendChild(questionPlaceholderOption);
+          answerContainer.style.display = 'none';
+          submitButton.style.display = 'none';
+        }
+      })
+      .catch(error => console.error('Erreur lors de la récupération des questions :', error));
+  }
+});
+
+questionSelectElement.addEventListener('change', function () {
+  // Clear answer field on question selection change
+  answerInput.value = '';
+
+  if (this.value) {
+    answerContainer.style.display = 'block';
+    submitButton.style.display = 'block';
+  } else {
+    answerContainer.style.display = 'none';
+    submitButton.style.display = 'none';
+  }
+});
+    </script>
+    <!-- End of Main Content -->
+{% endblock %}

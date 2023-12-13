@@ -1,0 +1,73 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ poll.title }}{% endblock %}
+
+{% block content %}
+<!-- Begin Page Content -->
+<div class="container-fluid">
+
+    <!-- Page Heading -->
+    <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">{{ poll.title }}</h1>
+    </div>
+
+    <!-- Content Row -->
+    <div class="card mb-4">
+        <div class="card-header py-3">
+            <div class="bs-stepper">
+                <div class="bs-stepper-header" role="tablist">
+                    {% for i in 1..totalQuestions %}
+                        <div class="step" data-target="#test-l-{{ i }}">
+                            <button type="button" class="step-trigger" role="tab" aria-controls="test-l-{{ i }}" id="test-l-{{ i }}-trigger">
+                                <span class="bs-stepper-circle">{{ i }}</span>
+                                <span class="bs-stepper-label">Question {{ i }}</span>
+                            </button>
+                        </div>
+                        {% if i < totalQuestions %}
+                        <div class="line"></div>
+                    {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+
+        <div class="card-body">
+            <form method="post" action="{{ path('app_poll', {'id': poll.id}) }}">
+                <input type="hidden" name="action" value="suivant">
+
+                <h3>{{ currentQuestion.title }}</h3>
+
+                {% for answer in answers %}
+                    <div class="custom-control custom-radio big">
+                        <input type="radio" class="custom-control-input" id="answer{{ answer.id }}" name="answer" value="{{ answer.id }}">
+                        <label class="custom-control-label" for="answer{{ answer.id }}">{{ answer.wording }}</label>
+                    </div>
+                {% endfor %}
+
+                <div class="my-2"></div>
+                {% if currentQuestionIndex > 0 %}
+                    <button type="submit" class="btn btn-warning btn-icon-split" name="action" value="precedent">
+                        <span class="icon text-gray-600"><i class="fas fa-arrow-left"></i></span>
+                        <span class="text">Précédent</span>
+                    </button>
+                {% endif %}
+
+                {% if currentQuestionIndex < totalQuestions - 1 %}
+                    <button type="submit" class="btn btn-primary btn-icon-split" name="action" value="suivant">
+                        <span class="icon text-gray-600"><i class="fas fa-arrow-right"></i></span>
+                        <span class="text">Suivant</span>
+                    </button>
+                {% else %}
+                    <button type="submit" class="btn btn-success btn-icon-split" name="action" value="terminer">
+                        <span class="icon text-gray-600"><i class="fas fa-check"></i></span>
+                        <span class="text">Terminer</span>
+                    </button>
+                {% endif %}
+            </form>
+        </div>
+    </div>
+
+<!-- /.container-fluid -->
+</div>
+<!-- End of Main Content -->
+{% endblock %}
